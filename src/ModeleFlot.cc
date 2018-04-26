@@ -501,7 +501,7 @@ IloModel IntervalModel::defineIntervalModel(IloIntVarArray Y) {
                         cost += (p[Pindex(g,a,b,t)] + pb->getP(i)*Y[Yindex(g,a,b)] )*(pb->getcp(i)) ;
                     }
                 }
-                cout << "production cost of g="<< g << " for [" << a << ", " << b+Lmin-1 <<"] : " << pb->getP(i)*pb->getcp(i) << endl ;
+                //cout << "production cost of g="<< g << " for [" << a << ", " << b+Lmin-1 <<"] : " << pb->getP(i)*pb->getcp(i) << endl ;
             }
         }
     }
@@ -534,17 +534,19 @@ IloModel IntervalModel::defineIntervalModel(IloIntVarArray Y) {
 
     //Ramp constraints
 
-    /*  for (int g=0; g<nbG; g++) {
+    for (int g=0; g<nbG; g++) {
         int i = pb->getFirstG(g) ;
         int SU = 0 ;
-        double RU = (pb->getPmax(i)-pb->getP(i))/3;
+        double RU = (pb->getPmax(i)-pb->getP(i))/2;
         double RD = (pb->getPmax(i)-pb->getP(i))/2 ;
 
         for (int a = 0 ; a < T ; a++) {
-            for (int b =0 ; b < T - Lmin + 1 ; b++) {
+            for (int b = 0 ; b < T - Lmin + 1 ; b++) {
 
                 model.add(p[Pindex(g,a,b,a)] <= SU*Y[Yindex(g,a,b)] ) ;
-                model.add(p[Pindex(g,a,b,b+Lmin-1)] <= SU*Y[Yindex(g,a,b)] ) ;
+                if (b+Lmin-1 < T-1) {
+                    model.add(p[Pindex(g,a,b,b+Lmin-1)] <= SU*Y[Yindex(g,a,b)] ) ;
+                }
 
                 for (int t=a+1 ; t < b+Lmin ; t++) {
                     model.add( p[Pindex(g,a,b,t)] - p[Pindex(g,a,b,t-1)] <= RU*Y[Yindex(g,a,b)] ) ;
@@ -552,7 +554,7 @@ IloModel IntervalModel::defineIntervalModel(IloIntVarArray Y) {
                 }
             }
         }
-    }*/
+    }
 
     // Contrainte de clique
     for (int t = 0 ; t < T ; t++) {
@@ -581,32 +583,32 @@ IloModel IntervalModel::defineIntervalModel(IloIntVarArray Y) {
         }
     }
 
-    IloCplex cplex(model) ;
-    cplex.solve();
-    IloNumArray ysol(env,0) ;
-    IloNumArray psol(env, 0) ;
-    cplex.getValues(Y, ysol) ;
-    cplex.getValues(p, psol) ;
+    //    IloCplex cplex(model) ;
+    //    cplex.solve();
+    //    IloNumArray ysol(env,0) ;
+    //    IloNumArray psol(env, 0) ;
+    //    cplex.getValues(Y, ysol) ;
+    //    cplex.getValues(p, psol) ;
 
-    for (int g = 0 ; g < nbG ; g++) {
-        for (int a = 0 ; a < T ; a++) {
-            for (int b =0 ; b < T - Lmin + 1 ; b++) {
-                if ( ysol[Yindex(g,a,b)] > 0.99999) {
-                    cout << "Groupe " << g << ", intervalle [" << a+1 << ", " << b+Lmin << "] ; y = " << ysol[Yindex(g,a,b)] << endl ;
-                    cout << "Power: " ;
-                    for (int t=a ; t < b+ Lmin ; t++) {
-                        cout << psol[Pindex(g,a,b,t)] << " ";
-                    }
-                    cout << endl ;
-                    cout << "Fixed cost: " << FixedCost(g,a,b) << endl ;
-                    cout << endl ;
-                }
-            }
-        }
-    }
+    //    for (int g = 0 ; g < nbG ; g++) {
+    //        for (int a = 0 ; a < T ; a++) {
+    //            for (int b =0 ; b < T - Lmin + 1 ; b++) {
+    //                if ( ysol[Yindex(g,a,b)] > 0.99999) {
+    //                    cout << "Groupe " << g << ", intervalle [" << a+1 << ", " << b+Lmin << "] ; y = " << ysol[Yindex(g,a,b)] << endl ;
+    //                    cout << "Power: " ;
+    //                    for (int t=a ; t < b+ Lmin ; t++) {
+    //                        cout << psol[Pindex(g,a,b,t)] << " ";
+    //                    }
+    //                    cout << endl ;
+    //                    cout << "Fixed cost: " << FixedCost(g,a,b) << endl ;
+    //                    cout << endl ;
+    //                }
+    //            }
+    //        }
+    //    }
 
 
-    cout << "obj value: " << cplex.getObjValue() << endl ;
+    //    cout << "obj value: " << cplex.getObjValue() << endl ;
 
 
     return model;

@@ -8,6 +8,7 @@ using namespace std ;
 
 IloModel defineModel(IloEnv env, InstanceUCP* pb, const IloBoolVarArray & x, const IloBoolVarArray & u, int uNum, int ramp) {
 
+    cout << "modele UCP classique"<< endl ;
 
     IloModel model = IloModel(env);
 
@@ -116,9 +117,10 @@ IloModel defineModel(IloEnv env, InstanceUCP* pb, const IloBoolVarArray & x, con
     if (ramp==1) {
         cout << "gradients"<< endl;
         for (i = 0 ; i <n ; i++) {
+            model.add(pp[i*T] <= 0 ) ;
             for (t = 1 ; t < T ; t++) {
-                model.add(pp[i*T + t] - pp[i*T + t-1] <= (pb->getPmax(i)-pb->getP(i))*x[i*T + t-1]/3 + pb->getP(i)*u[i*T + t] );
-                model.add(pp[i*T + t-1] - pp[i*T + t] <= (pb->getPmax(i)-pb->getP(i))*x[i*T + t]/2 + pb->getP(i)*(u[i*T + t] + x[i*T + t-1] - x[i*T + t] ));
+                model.add(pp[i*T + t] - pp[i*T + t-1] <= (pb->getPmax(i)-pb->getP(i))*x[i*T + t-1]/2 );
+                model.add(pp[i*T + t-1] - pp[i*T + t] <= (pb->getPmax(i)-pb->getP(i))*x[i*T + t]/2 );
             }
         }
     }

@@ -334,7 +334,7 @@ void InstanceUCP::Lecture(const char* file) {
     }
     nom = "";
     for(IloInt j=0; j<n; j++){
-        fichier >> Init_[j];
+        Init_[j] = 0;
     }
 
     //L

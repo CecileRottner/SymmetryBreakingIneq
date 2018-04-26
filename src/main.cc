@@ -80,7 +80,6 @@ int process(InstanceProcessed I, ofstream & fichier, double & time, Methode met,
     }
 
     else if (met.ModeleIntervalle()) {
-
         model = modelInt.defineIntervalModel(Y) ;
     }
 
@@ -101,11 +100,12 @@ int process(InstanceProcessed I, ofstream & fichier, double & time, Methode met,
 
 
     //Résolution et affichage de la solution
-    if (!met.ModeleIntervalle()) {
+
     cplex.solve();
 
-    //cout << "feasible : " << cplex.isPrimalFeasible() << endl ;
-    /*cplex.getValues(sub.x_frac, x) ;
+    if (cplex.isPrimalFeasible()) {
+        //cout << "feasible : " << cplex.isPrimalFeasible() << endl ;
+        /*cplex.getValues(sub.x_frac, x) ;
 
     for (int t=0 ; t < T ; t++) {
         cout << "t=" << t << "    " ;
@@ -119,37 +119,49 @@ int process(InstanceProcessed I, ofstream & fichier, double & time, Methode met,
     }
     cout << endl;*/
 
-    ///Affichage solution optimale
+        ///Affichage solution optimale
 
 
-    IloNumArray x_frac(env,0);
-    cplex.getValues(x_frac, x) ;
-    for (int i=0; i<n; i++) {
-        cout << "unité " << i << " : " ;
-        for (int t=0 ; t < T ; t++) {
-            cout << x_frac[i*T +t] << " " ;
-        }
-        cout << endl ;
-    }
-    cout << endl ;
+        //    IloNumArray x_frac(env,0);
+        //    cplex.getValues(x_frac, x) ;
+        //    for (int i=0; i<n; i++) {
+        //        cout << "unité " << i << " : " ;
+        //        for (int t=0 ; t < T ; t++) {
+        //            cout << x_frac[i*T +t] << " " ;
+        //        }
+        //        cout << endl ;
+        //    }
+        //    cout << endl ;
 
-   /* else {
+        //    IloNumArray u_frac(env,0);
+        //    cplex.getValues(u_frac, u) ;
+        //    for (int i=0; i<n; i++) {
+        //        cout << "start up unité " << i << " : " ;
+        //        for (int t=0 ; t < T ; t++) {
+        //            cout << u_frac[i*T +t] << " " ;
+        //        }
+        //        cout << endl ;
+        //    }
+        //    cout << endl ;
+
+        /* else {
 
     }*/
 
-    double t = cplex.getCplexTime();
-    double opt = cplex.getObjValue() ;
+        double t = cplex.getCplexTime();
+        double opt = cplex.getObjValue() ;
 
-    fichier << met.getNum() <<  " & " << n << " & " << T  << " & " << I.symetrie << " & " << inst->nbG  << " & " << inst->MaxSize << " & " << inst->MeanSize  << " & " << id ;
-    fichier << " & " << cplex.getObjValue()  ; //Optimal value
-    fichier << " & " << cplex.getMIPRelativeGap() << " \\% " ; //approx gap
-    fichier << " & " << cplex.getNnodes() ;
-    fichier << " & " << t - time ;
-    fichier <<" \\\\ " << endl ;
+        fichier << met.getNum() <<  " & " << n << " & " << T  << " & " << I.symetrie << " & " << inst->nbG  << " & " << inst->MaxSize << " & " << inst->MeanSize  << " & " << id ;
+        fichier << " & " << cplex.getObjValue()  ; //Optimal value
+        fichier << " & " << cplex.getMIPRelativeGap() << " \\% " ; //approx gap
+        fichier << " & " << cplex.getNnodes() ;
+        fichier << " & " << t - time ;
+        fichier <<" \\\\ " << endl ;
 
-    time = t ;
-
+        time = t ;
     }
+
+
     //Destructeurs
     // delete inst ;
     // delete dataNode ;
@@ -251,15 +263,15 @@ main(int argc,char**argv)
         int demande = 3;
         int cat01 = 0;
         int bloc = 1;
-        int intra = 1 ;
-        string localisation = "data/datacolgen/" ;
+        int intra = 0 ;
+        string localisation = "data/Litt_Real/" ;
         InstanceProcessed Instance = InstanceProcessed(n, T, bloc, demande, sym, cat01, intra, 0, localisation) ;
 
         fichier << localisation << endl ;
         Instance.localisation = localisation ;
 
-        n=10;
-        T=24;
+        n=30;
+        T=96;
         Instance.n=n;
         Instance.T=T ;
         IloEnv env ;
@@ -267,19 +279,18 @@ main(int argc,char**argv)
         for (sym= 3; sym >=3 ; sym--) {
             Instance.symetrie = sym ;
 
-            for (int id=1; id <=1; id++) {
+            for (int id=1; id <=20; id++) {
                 Instance.id = id ;
 
                 env=IloEnv() ;
                 cout <<"start ramp model" << endl ;
-                process(Instance, fichier, time, DefaultCplex , env) ;
+                process(Instance, fichier, time, RampModel , env) ;
                 cout <<"end ramp model" << endl ;
                 env.end() ;
 
-
-               /* env=IloEnv() ;
+                env=IloEnv() ;
                 process(Instance, fichier, time, RampIneqRSU, env) ;
-                env.end() ;*/
+                env.end() ;
 
                 env=IloEnv() ;
                 process(Instance, fichier, time, ModeleIntervalle, env) ;
