@@ -389,7 +389,10 @@ double IntervalModel::FixedCost(int g, int a, int b) {
     int first = pb->getFirstG(g) ;
     //    cout << "c0: " <<pb->getc0(first) << endl;
     //    cout << "cf: " << pb->getcf(first) << endl;
-    double cost = pb->getc0(first) ;
+    double cost = 0 ;
+    if (a>0) {
+        cost += pb->getc0(first) ;
+    }
     cost += (b+Lmin-a)*pb->getcf(first) ;
     return cost ;
 }
@@ -426,6 +429,7 @@ int IntervalModel::inCliqueInterval(int a, int b, int t, int i) { // renvoie 1 s
 }
 
 IloModel IntervalModel::defineIntervalModel(IloIntVarArray Y) {
+    cout << "in the model" << endl;
 
     double Pmaxmax = pb->getPmax(0) ;
     for (int i=1 ; i < n ; i++) {
@@ -441,6 +445,8 @@ IloModel IntervalModel::defineIntervalModel(IloIntVarArray Y) {
 
 
     IloModel model = IloModel(env) ;
+
+
 
     //Borne sup sur Y et sur P pour chaque groupe. Borne à 0 lorsque l'intervalle est trop petit pour le temps min de marche, où lorsque t est en dehors (pour p).
     for (int g = 0 ; g < nbG ; g++) {
@@ -482,7 +488,6 @@ IloModel IntervalModel::defineIntervalModel(IloIntVarArray Y) {
         }
     }
 
-
     // Objective Function: Minimize Cost
     IloExpr cost(env) ;
 
@@ -507,7 +512,6 @@ IloModel IntervalModel::defineIntervalModel(IloIntVarArray Y) {
     }
 
     model.add(IloMinimize(env, cost));
-
 
     // Demand constraints
     for (int t = 0 ; t < T ; t++) {
@@ -543,7 +547,9 @@ IloModel IntervalModel::defineIntervalModel(IloIntVarArray Y) {
         for (int a = 0 ; a < T ; a++) {
             for (int b = 0 ; b < T - Lmin + 1 ; b++) {
 
+                if (a > 0) {
                 model.add(p[Pindex(g,a,b,a)] <= SU*Y[Yindex(g,a,b)] ) ;
+                }
                 if (b+Lmin-1 < T-1) {
                     model.add(p[Pindex(g,a,b,b+Lmin-1)] <= SU*Y[Yindex(g,a,b)] ) ;
                 }
@@ -556,6 +562,8 @@ IloModel IntervalModel::defineIntervalModel(IloIntVarArray Y) {
         }
     }
 
+
+    cout << "ici" << endl;
     // Contrainte de clique
     for (int t = 0 ; t < T ; t++) {
         for (int g=0; g<nbG; g++) {
@@ -610,6 +618,8 @@ IloModel IntervalModel::defineIntervalModel(IloIntVarArray Y) {
 
     //    cout << "obj value: " << cplex.getObjValue() << endl ;
 
+
+    cout << "out the model" << endl;
 
     return model;
 }

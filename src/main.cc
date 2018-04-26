@@ -263,15 +263,15 @@ main(int argc,char**argv)
         int demande = 3;
         int cat01 = 0;
         int bloc = 1;
-        int intra = 0 ;
-        string localisation = "data/Litt_Real/" ;
+        int intra = 1 ;
+        string localisation = "data/datacolgen/" ;
         InstanceProcessed Instance = InstanceProcessed(n, T, bloc, demande, sym, cat01, intra, 0, localisation) ;
 
         fichier << localisation << endl ;
         Instance.localisation = localisation ;
 
-        n=30;
-        T=96;
+        n=10;
+        T=24;
         Instance.n=n;
         Instance.T=T ;
         IloEnv env ;
@@ -279,7 +279,7 @@ main(int argc,char**argv)
         for (sym= 3; sym >=3 ; sym--) {
             Instance.symetrie = sym ;
 
-            for (int id=1; id <=20; id++) {
+            for (int id=1; id <=10; id++) {
                 Instance.id = id ;
 
                 env=IloEnv() ;
