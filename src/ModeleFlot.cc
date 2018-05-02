@@ -541,7 +541,7 @@ IloModel IntervalModel::defineIntervalModel(IloIntVarArray Y) {
     for (int g=0; g<nbG; g++) {
         int i = pb->getFirstG(g) ;
         int SU = 0 ;
-        double RU = (pb->getPmax(i)-pb->getP(i))/2;
+        double RU = (pb->getPmax(i)-pb->getP(i))/3;
         double RD = (pb->getPmax(i)-pb->getP(i))/2 ;
 
         for (int a = 0 ; a < T ; a++) {
@@ -562,8 +562,6 @@ IloModel IntervalModel::defineIntervalModel(IloIntVarArray Y) {
         }
     }
 
-
-    cout << "ici" << endl;
     // Contrainte de clique
     for (int t = 0 ; t < T ; t++) {
         for (int g=0; g<nbG; g++) {

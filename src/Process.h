@@ -52,7 +52,7 @@ public:
 
     // modification des paramètres
     void setNum(int nb) { num=nb ; }
-    void AddIneqRSU() {doRSUOnly=1;}
+    void AddIneqRSU() {num=-3; doRSUOnly=1;}
 
 
     //Méthodes de résolution
@@ -101,7 +101,7 @@ public:
 
 
     void UseRampConstraints() {
-        num=-3 ;
+        //num=-3 ;
         doCplex=0 ;
         CteRamping=1 ;
     }

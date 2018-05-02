@@ -29,7 +29,6 @@ IloModel defineModel(IloEnv env, InstanceUCP* pb, const IloBoolVarArray & x, con
     for (t=0 ; t < T ; t++) {
         for (i=0; i<n; i++) {
             cost += x[i*T + t]*pb->getcf(i) + pb->getc0(i)*u[i*T + t] + (pp[i*T + t]+pb->getP(i)*x[i*T + t])*(pb->getcp(i)) ;
-
         }
     }
 
@@ -39,7 +38,7 @@ IloModel defineModel(IloEnv env, InstanceUCP* pb, const IloBoolVarArray & x, con
 
 
     // Conditions initiales
-    for (i=0; i<n; i++) {
+   /* for (i=0; i<n; i++) {
         model.add(u[i*T] >= x[i*T] - pb->getInit(i) ) ;
     }
 
@@ -50,7 +49,7 @@ IloModel defineModel(IloEnv env, InstanceUCP* pb, const IloBoolVarArray & x, con
         }
         model.add(sum <= 1 - pb->getInit(i) ) ;
         sum.end() ;
-    }
+    }*/
 
     // Min up constraints
     for (i=0; i<n; i++) {
@@ -119,7 +118,7 @@ IloModel defineModel(IloEnv env, InstanceUCP* pb, const IloBoolVarArray & x, con
         for (i = 0 ; i <n ; i++) {
            // model.add(pp[i*T] <= 0 ) ;
             for (t = 1 ; t < T ; t++) {
-                model.add(pp[i*T + t] - pp[i*T + t-1] <= (pb->getPmax(i)-pb->getP(i))*x[i*T + t-1]/2 );
+                model.add(pp[i*T + t] - pp[i*T + t-1] <= (pb->getPmax(i)-pb->getP(i))*x[i*T + t-1]/3 );
                 model.add(pp[i*T + t-1] - pp[i*T + t] <= (pb->getPmax(i)-pb->getP(i))*x[i*T + t]/2 );
             }
         }

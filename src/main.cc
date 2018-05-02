@@ -263,14 +263,16 @@ main(int argc,char**argv)
         int demande = 3;
         int cat01 = 0;
         int bloc = 1;
-        int intra = 1 ;
-        string localisation = "data/datacolgen/" ;
+
+        int intra =0 ;
+
+        string localisation = "data/smaller/" ;
         InstanceProcessed Instance = InstanceProcessed(n, T, bloc, demande, sym, cat01, intra, 0, localisation) ;
 
         fichier << localisation << endl ;
         Instance.localisation = localisation ;
 
-        n=10;
+        n=20;
         T=24;
         Instance.n=n;
         Instance.T=T ;
@@ -279,30 +281,78 @@ main(int argc,char**argv)
         for (sym= 3; sym >=3 ; sym--) {
             Instance.symetrie = sym ;
 
-            for (int id=1; id <=10; id++) {
-                Instance.id = id ;
+            for (T=24 ; T <= 965 ; T*=2) {
 
-                env=IloEnv() ;
-                cout <<"start ramp model" << endl ;
-                process(Instance, fichier, time, RampModel , env) ;
-                cout <<"end ramp model" << endl ;
-                env.end() ;
+                Instance.T=T ;
 
-                env=IloEnv() ;
-                process(Instance, fichier, time, RampIneqRSU, env) ;
-                env.end() ;
 
-                env=IloEnv() ;
-                process(Instance, fichier, time, ModeleIntervalle, env) ;
-                env.end() ;
+                for (int id=1; id <=20; id++) {
+                    Instance.id = id ;
+
+                    env=IloEnv() ;
+                    cout <<"start ramp model" << endl ;
+                    process(Instance, fichier, time, RampModel , env) ;
+                    cout <<"end ramp model" << endl ;
+                    env.end() ;
+
+                    env=IloEnv() ;
+                    process(Instance, fichier, time, RampIneqRSU, env) ;
+                    env.end() ;
+
+                    env=IloEnv() ;
+                    process(Instance, fichier, time, ModeleIntervalle, env) ;
+                    env.end() ;
+
+                    fichier << endl ;
+                }
 
                 fichier << endl ;
+                fichier << endl ;
             }
-
-            fichier << endl ;
-            fichier << endl ;
         }
     }
+
+
+    //        int intra = 0 ;
+    //        string localisation = "data/Litt_Real/" ;
+    //        InstanceProcessed Instance = InstanceProcessed(n, T, bloc, demande, sym, cat01, intra, 0, localisation) ;
+
+    //        fichier << localisation << endl ;
+    //        Instance.localisation = localisation ;
+
+    //        n=30;
+    //        T=96;
+    //        Instance.n=n;
+    //        Instance.T=T ;
+    //        IloEnv env ;
+
+    //        for (sym= 3; sym >=3 ; sym--) {
+    //            Instance.symetrie = sym ;
+
+    //            for (int id=1; id <=10; id++) {
+    //                Instance.id = id ;
+
+    //                env=IloEnv() ;
+    //                cout <<"start ramp model" << endl ;
+    //                process(Instance, fichier, time, RampModel , env) ;
+    //                cout <<"end ramp model" << endl ;
+    //                env.end() ;
+
+    //                env=IloEnv() ;
+    //                process(Instance, fichier, time, RampIneqRSU, env) ;
+    //                env.end() ;
+
+    //                /*env=IloEnv() ;
+    //            process(Instance, fichier, time, ModeleIntervalle, env) ;
+    //            env.end() ;*/
+
+    //                fichier << endl ;
+    //            }
+
+    //            fichier << endl ;
+    //            fichier << endl ;
+    //        }
+    //    }
 
 
 
