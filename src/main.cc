@@ -234,14 +234,18 @@ main(int argc,char**argv)
         IloEnv env ;
 
         if (met==1) {
-
             env=IloEnv() ;
-            process(Instance, fichier, time, DefaultCplex, env) ;
+            process(Instance, fichier, time, RampModel , env) ;
             env.end() ;
 
+            env=IloEnv() ;
+            process(Instance, fichier, time, RampIneqRSU, env) ;
+            env.end() ;
+
+            env=IloEnv() ;
+            process(Instance, fichier, time, ModeleIntervalle, env) ;
+            env.end() ;
             fichier << endl ;
-
-
         }
     }
 
