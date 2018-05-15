@@ -262,7 +262,7 @@ main(int argc,char**argv)
         //Paramètres de l'instance
 
         int T = 96;
-        int n = 60 ;
+        int n = 30 ;
         int sym = 2 ;
         int demande = 3;
         int cat01 = 0;
@@ -270,14 +270,14 @@ main(int argc,char**argv)
 
         int intra =0 ;
 
-        string localisation = "data/smaller/" ;
+        string localisation = "data/Litt_Real/" ;
         InstanceProcessed Instance = InstanceProcessed(n, T, bloc, demande, sym, cat01, intra, 0, localisation) ;
 
         fichier << localisation << endl ;
         Instance.localisation = localisation ;
 
-        n=20;
-        T=24;
+        n=30;
+        T=96;
         Instance.n=n;
         Instance.T=T ;
         IloEnv env ;
@@ -285,12 +285,12 @@ main(int argc,char**argv)
         for (sym= 3; sym >=3 ; sym--) {
             Instance.symetrie = sym ;
 
-            for (T=24 ; T <= 965 ; T*=2) {
+            for (T=96 ; T <=96; T*=2) {
 
                 Instance.T=T ;
 
 
-                for (int id=1; id <=20; id++) {
+                for (int id=2; id <=20; id++) {
                     Instance.id = id ;
 
                     env=IloEnv() ;
@@ -303,9 +303,9 @@ main(int argc,char**argv)
                     process(Instance, fichier, time, RampIneqRSU, env) ;
                     env.end() ;
 
-                    env=IloEnv() ;
-                    process(Instance, fichier, time, ModeleIntervalle, env) ;
-                    env.end() ;
+//                    env=IloEnv() ;
+//                    process(Instance, fichier, time, ModeleIntervalle, env) ;
+//                    env.end() ;
 
                     fichier << endl ;
                 }

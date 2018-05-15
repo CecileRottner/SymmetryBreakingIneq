@@ -1,6 +1,8 @@
 SYSTEM     = x86-64_linux
 LIBFORMAT  = static_pic
 
+VPATH += src
+
 #------------------------------------------------------------
 #
 # When you adapt this makefile to compile your CPLEX programs
@@ -72,24 +74,51 @@ execute_cpp: $(CPP_EX)
 	 ./mf
 
 
-# ------------------------------------------------------------
 
-clean :
-	/bin/rm -rf *.o *~ *.class
-	/bin/rm -rf $(C_EX) $(CX_EX) $(CPP_EX)
-	/bin/rm -rf *.mps *.ord *.sos *.lp *.sav *.net *.msg *.log *.clp
+
 
 # ------------------------------------------------------------
 #
-# The examples
+# Obj
 #
 
+OBJ_LIST := InstanceUCP.o \
+	    ModeleUCP.o \
+	    ModeleFlot.o \
+            Process.o \
+	    main.o \
 
-mf: main.o
-	$(CCC) $(CCFLAGS) $(CCLNDIRS) -o mf main.o $(CCLNFLAGS)
-main.o: src/main.cpp
-	$(CCC) -c $(CCFLAGS) src/main.cpp -o main.o
+OBJ:= $(addprefix build/, $(OBJ_LIST))
 
+# ------------------------------------------------------------
+.PHONY: clean mrproper
+
+clean:
+	@$(remove) $(OBJ)
+
+mrproper: clean
+	@$(remove) $(BIN)
+
+# ------------------------------------------------------------
+# link
+
+mf: $(OBJ)
+	$(CCC) $(CCFLAGS) $(CCLNDIRS) -o $@ $^ $(CCLNFLAGS)
+
+
+# ------------------------------------------------------------
+# compil
+
+build/%.o: src/%.cc
+	$(CCC) -c $(CCFLAGS) $^ -o $@
+
+
+# List of dependencies
+build/InstanceUCP.o   : InstanceUCP.h
+build/ModeleFlot.o : InstanceUCP.h ModeleFlot.h
+build/ModeleUCP.o : InstanceUCP.h ModeleUCP.h
+build/Process.o : Process.h InstanceUCP.h ModeleUCP.h
+build/main.o      : InstanceUCP.h ModeleUCP.h Process.h 
 
 # Local Variables:
 # mode: makefile
