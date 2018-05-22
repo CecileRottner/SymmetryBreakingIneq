@@ -38,7 +38,7 @@ IloModel defineModel(IloEnv env, InstanceUCP* pb, const IloBoolVarArray & x, con
 
 
     // Conditions initiales
-   /* for (i=0; i<n; i++) {
+    /* for (i=0; i<n; i++) {
         model.add(u[i*T] >= x[i*T] - pb->getInit(i) ) ;
     }
 
@@ -116,7 +116,7 @@ IloModel defineModel(IloEnv env, InstanceUCP* pb, const IloBoolVarArray & x, con
     if (ramp==1) {
         cout << "gradients"<< endl;
         for (i = 0 ; i <n ; i++) {
-           // model.add(pp[i*T] <= 0 ) ;
+            // model.add(pp[i*T] <= 0 ) ;
             for (t = 1 ; t < T ; t++) {
                 model.add(pp[i*T + t] - pp[i*T + t-1] <= (pb->getPmax(i)-pb->getP(i))*x[i*T + t-1]/3 );
                 model.add(pp[i*T + t-1] - pp[i*T + t] <= (pb->getPmax(i)-pb->getP(i))*x[i*T + t]/2 );
@@ -155,7 +155,13 @@ void AddRSUIneq(IloModel & model, IloEnv env, InstanceUCP* pb, const IloBoolVarA
             for (int t = l ; t < T ; t++) {
 
                 IloExpr rhs(env) ;
-                rhs += x[i*T+t] + x[i*T+t - l];
+                rhs +=  x[i*T+t - l];
+                if (methode == -5) {
+                    rhs +=u[i*T+t] ;
+                }
+                else {
+                    rhs += x[i*T+t] ;
+                }
 
                 for (int k=t -l + 1 ; k < t ; k++) {
                     rhs+= u[i*T+k] ;
@@ -175,6 +181,57 @@ void AddRSUIneq(IloModel & model, IloEnv env, InstanceUCP* pb, const IloBoolVarA
             }
         }
     }
+}
+
+void AddRSDIneqForRamps(IloModel & model, IloEnv env, InstanceUCP* pb, const IloBoolVarArray & x, const IloBoolVarArray & u, int methode) {
+
+    // methode=-4 : inégalité pour chaque couple (i,j)
+    // par défaut : seulement couple (i,i+1)
+
+    // ajout des inégalités Ready to Start Up
+    int T = pb->getT() ;
+    int k ;
+
+    for (int g=0 ; g < pb->nbG ; g++) {
+
+        int first = pb->FirstG[g] ;
+        int last = pb->LastG[g] ;
+
+        for (int i=first+1 ; i <= last ; i++) {
+
+            int L = pb->getL(i) ;
+
+            for (int t = L ; t < T ; t++) {
+
+                IloExpr rhs_w(env) ;
+                rhs_w += + 1 - x[i*T+t - L];
+
+                if (methode == -5) {
+                    rhs_w += x[i*T + t-1] - x[i*T+t] + u[i*T+t] ;
+                }
+                else {
+                    rhs_w += 1 - x[i*T+t] ;
+                }
+
+                for (k=t -L + 1 ; k < t ; k++) {
+                    rhs_w += x[i*T + k-1] - x[i*T+k] + u[i*T+k] ;
+                }
+
+                int lb_j = i-1 ;
+                if (methode == -4) {
+                    lb_j=first ;
+                }
+                for (int j=i-1 ; j >= lb_j ; j--) {
+                    for (k=1 ; k < t ; k++) {
+                        rhs_w += x[j*T + k-1] - x[j*T+k] + u[j*T+k] ;
+                    }
+
+                    model.add(x[j*T + t-1] - x[j*T+t] + u[j*T + t] <= rhs_w) ;
+                }
+            }
+        }
+    }
+
 }
 
 IloModel defineModel_y(IloEnv env, InstanceUCP* pb, const IloBoolVarArray & x, const IloBoolVarArray & u) {

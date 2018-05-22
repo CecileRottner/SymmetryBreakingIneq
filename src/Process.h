@@ -21,11 +21,13 @@ private:
     int doCplex ;
     int doIneqSum ;
     int doRSUOnly ;
+    int doRSDforRamps;
     int doIneqVarY ;
     int doModeleFlot ;
     int doNumberOfOnes ;
     int doAggregatedModel ;
     int doIntervalModel ;
+    int doRHS_RSU_u ;
 
     //contraintes
     int CteRamping ;
@@ -40,12 +42,14 @@ public:
 
         doIneqSum = 0;
         doRSUOnly = 0 ;
+        doRSDforRamps= 0 ;
         doIneqVarY = 0;
         doModeleFlot =0 ;
         doNumberOfOnes = 0 ;
         doAggregatedModel = 0 ;
         doIntervalModel = 0 ;
         CteRamping = 0 ;
+        doRHS_RSU_u = 0 ;
 
     }
 
@@ -106,6 +110,14 @@ public:
         CteRamping=1 ;
     }
 
+    void Use_RHS_RSU_u()  {
+        doRHS_RSU_u = 1 ;
+    }
+
+    void UseRSDforRamps()  {
+        doRSDforRamps = 1 ;
+    }
+
     void printParam()  {
         cout << "method nb: " << num << endl ;
         cout << "Cplex only: " << doCplex << endl ;
@@ -128,6 +140,8 @@ public:
     int ModeleIntervalle() {return doIntervalModel ;}
     int Ramping() {return CteRamping;}
     int RSUonly() {return doRSUOnly;}
+    int RHS_RSU_u()  {return doRHS_RSU_u;}
+    int RSDforRamps() {return doRSDforRamps;}
 
 };
 

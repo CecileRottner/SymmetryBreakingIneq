@@ -86,7 +86,15 @@ int process(InstanceProcessed I, ofstream & fichier, double & time, Methode met,
     else {
         model = defineModel(env,inst,x,u, 0, ramp) ;
         if (met.RSUonly()) {
-            AddRSUIneq(model, env, inst,x,u,0);
+            if (met.RHS_RSU_u()) {
+                AddRSUIneq(model, env, inst,x,u,-5);
+            }
+            else {
+                AddRSUIneq(model, env, inst,x,u,0);
+            }
+        }
+        if (met.RSDforRamps()) {
+            AddRSDIneqForRamps(model, env, inst, x,u,-5);
         }
     }
 
@@ -189,6 +197,18 @@ main(int argc,char**argv)
     RampIneqRSU.UseRampConstraints();
     RampIneqRSU.AddIneqRSU() ;
 
+
+    Methode RampIneqRSU_u;
+    RampIneqRSU_u.UseRampConstraints();
+    RampIneqRSU_u.AddIneqRSU() ;
+    RampIneqRSU_u.Use_RHS_RSU_u() ;
+
+    Methode RampIneqRSU_RSDRamps;
+    RampIneqRSU_RSDRamps.UseRampConstraints();
+    RampIneqRSU_RSDRamps.AddIneqRSU() ;
+    RampIneqRSU_u.Use_RHS_RSU_u() ;
+    RampIneqRSU_RSDRamps.UseRSDforRamps();
+
     Methode ModeleIntervalle ;
     ModeleIntervalle.UseModeleInterval();
 
@@ -261,8 +281,8 @@ main(int argc,char**argv)
 
         //Paramètres de l'instance
 
-        int T = 96;
-        int n = 30 ;
+        int T = 24;
+        int n = 20 ;
         int sym = 2 ;
         int demande = 3;
         int cat01 = 0;
@@ -270,13 +290,13 @@ main(int argc,char**argv)
 
         int intra =0 ;
 
-        string localisation = "data/Litt_Real/" ;
+        string localisation = "data/smaller/" ;
         InstanceProcessed Instance = InstanceProcessed(n, T, bloc, demande, sym, cat01, intra, 0, localisation) ;
 
         fichier << localisation << endl ;
         Instance.localisation = localisation ;
 
-        n=30;
+        n=20;
         T=96;
         Instance.n=n;
         Instance.T=T ;
@@ -285,12 +305,12 @@ main(int argc,char**argv)
         for (sym= 3; sym >=3 ; sym--) {
             Instance.symetrie = sym ;
 
-            for (T=96 ; T <=96; T*=2) {
+            for (T=24 ; T <=96; T*=2) {
 
                 Instance.T=T ;
 
 
-                for (int id=2; id <=20; id++) {
+                for (int id=16; id <=20; id++) {
                     Instance.id = id ;
 
                     env=IloEnv() ;
@@ -299,8 +319,16 @@ main(int argc,char**argv)
                     cout <<"end ramp model" << endl ;
                     env.end() ;
 
+//                    env=IloEnv() ;
+//                    process(Instance, fichier, time, RampIneqRSU, env) ;
+//                    env.end() ;
+
                     env=IloEnv() ;
-                    process(Instance, fichier, time, RampIneqRSU, env) ;
+                    process(Instance, fichier, time, RampIneqRSU_u, env) ;
+                    env.end() ;
+
+                    env=IloEnv() ;
+                    process(Instance, fichier, time, RampIneqRSU_RSDRamps, env) ;
                     env.end() ;
 
 //                    env=IloEnv() ;
