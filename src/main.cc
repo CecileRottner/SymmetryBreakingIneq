@@ -15,9 +15,6 @@
 
 using namespace std ;
 
-
-
-
 ILOSTLBEGIN
 
 int process(InstanceProcessed I, ofstream & fichier, double & time, Methode met, IloEnv env) {
@@ -25,7 +22,7 @@ int process(InstanceProcessed I, ofstream & fichier, double & time, Methode met,
     // cout << "ici : " << met.getNum() << endl ;
 
     string nom = I.fileName() ;
-    const char* file = nom.c_str() ;
+    const char* file = strdup(nom.c_str()) ;
 
 
     int id=I.id ;
@@ -40,61 +37,43 @@ int process(InstanceProcessed I, ofstream & fichier, double & time, Methode met,
     IloBoolVarArray x(env,n*T);
     IloBoolVarArray u(env,n*T);
 
-    IloBoolVarArray f(env,n*(T+2)*(T+2));
+    ModeleUCP TakritiModel = ModeleUCP(env, inst,met, x,u) ;
+    IntervalModel IntModel(env, inst, met);
 
 
-    IntervalModel modelInt(env, inst);
-    int Lmin = modelInt.Lmin;
+    int Lmin = IntModel.Lmin;
     IloIntVarArray Y(env,inst->nbG*T*(T-Lmin+1), 0, n) ;
 
     IloModel model ;
 
-    int ramp = met.Ramping();
-
-
-
-    if (met.IneqVarY()) {
-        if (!met.IneqSum()) {
-            model = defineModel_y(env,inst,x,u) ;
-        }
-        else {
-            model = defineModel_sum(env,inst, x,u, -5) ;
-        }
-    }
-    else if (met.IneqSum()) {
-        model = defineModel_sum(env,inst, x,u, -3) ;
-
+    if (met.IneqSum()) {
+        model = TakritiModel.defineModel_sum() ;
     }
 
     else if (met.NumberOfOnes()) {
-        model = defineModel_numberOfOnes(env,inst, x,u) ;
+        model = TakritiModel.defineModel_numberOfOnes() ;
     }
 
     else if (met.AggregatedModel()) {
-        model = AggregatedModel(env, inst) ;
+        model = TakritiModel.AggregatedModel() ;
     }
 
     else if (met.ModeleFlot()) {
-        ModeleFlot flot(env, inst) ;
+        ModeleFlot flot(env, inst, met) ;
         model = flot.AggregatedFlowModel();
     }
 
     else if (met.ModeleIntervalle()) {
-        model = modelInt.defineIntervalModel(Y) ;
+        model = IntModel.defineIntervalModel(Y) ;
     }
 
     else {
-        model = defineModel(env,inst,x,u, 0, ramp) ;
+        model = TakritiModel.defineModel(0) ;
         if (met.RSUonly()) {
-            if (met.RHS_RSU_u()) {
-                AddRSUIneq(model, env, inst,x,u,-5);
-            }
-            else {
-                AddRSUIneq(model, env, inst,x,u,0);
-            }
+            TakritiModel.AddRSUIneq(model);
         }
         if (met.RSDforRamps()) {
-            AddRSDIneqForRamps(model, env, inst, x,u,-5);
+            TakritiModel.AddRSDIneqForRamps(model);
         }
     }
 
@@ -111,6 +90,7 @@ int process(InstanceProcessed I, ofstream & fichier, double & time, Methode met,
 
     cplex.solve();
 
+    double t = cplex.getCplexTime();
     if (cplex.isPrimalFeasible()) {
         //cout << "feasible : " << cplex.isPrimalFeasible() << endl ;
         /*cplex.getValues(sub.x_frac, x) ;
@@ -156,7 +136,7 @@ int process(InstanceProcessed I, ofstream & fichier, double & time, Methode met,
 
     }*/
 
-        double t = cplex.getCplexTime();
+
         double opt = cplex.getObjValue() ;
 
         fichier << met.getNum() <<  " & " << n << " & " << T  << " & " << I.symetrie << " & " << inst->nbG  << " & " << inst->MaxSize << " & " << inst->MeanSize  << " & " << id ;
@@ -166,10 +146,10 @@ int process(InstanceProcessed I, ofstream & fichier, double & time, Methode met,
         fichier << " & " << t - time ;
         fichier <<" \\\\ " << endl ;
 
-        time = t ;
+
     }
 
-
+    time = t ;
     //Destructeurs
     // delete inst ;
     // delete dataNode ;
@@ -185,38 +165,24 @@ main(int argc,char**argv)
     srand(time(NULL));
 
     //définition des méthodes de résolution
+
+    ///// SANS GRADIENTS
     Methode DefaultCplex ;
 
     Methode IneqPures;
     IneqPures.UseIneqSum();
 
-    Methode RampModel;
-    RampModel.UseRampConstraints();
 
-    Methode RampIneqRSU;
-    RampIneqRSU.UseRampConstraints();
-    RampIneqRSU.AddIneqRSU() ;
-
-
-    Methode RampIneqRSU_u;
-    RampIneqRSU_u.UseRampConstraints();
-    RampIneqRSU_u.AddIneqRSU() ;
-    RampIneqRSU_u.Use_RHS_RSU_u() ;
-
-    Methode RampIneqRSU_RSDRamps;
-    RampIneqRSU_RSDRamps.UseRampConstraints();
-    RampIneqRSU_RSDRamps.AddIneqRSU() ;
-    RampIneqRSU_u.Use_RHS_RSU_u() ;
-    RampIneqRSU_RSDRamps.UseRSDforRamps();
-
-    Methode ModeleIntervalle ;
-    ModeleIntervalle.UseModeleInterval();
+    Methode ModeleIntervalleNoRamp ;
+    ModeleIntervalleNoRamp.UseModeleInterval();
 
     Methode IneqVarY;
     IneqVarY.UseIneqVarY();
 
+
     Methode Flot;
     Flot.UseModeleFlot();
+
 
     Methode IneqNumberOfOnes;
     IneqNumberOfOnes.UseNumberOfOnes();
@@ -228,6 +194,40 @@ main(int argc,char**argv)
 
     Methode AggregModel;
     AggregModel.UseAggregatedModel();
+
+    //////// AVEC GRADIENTS
+
+    Methode RampDefaultCplex;
+    RampDefaultCplex.UseRampConstraints();
+
+    Methode RampIneqRSU;
+    RampIneqRSU.AddIneqRSU() ;
+    RampIneqRSU.UseRampConstraints();
+
+
+    Methode RampIneqRSU_u;
+    RampIneqRSU_u.AddIneqRSU() ;
+    RampIneqRSU_u.Use_RHS_RSU_u() ;
+    RampIneqRSU_u.UseRampConstraints();
+
+    Methode RampIneqRSU_RSDRamps;
+    RampIneqRSU_RSDRamps.AddIneqRSU() ;
+    RampIneqRSU_u.Use_RHS_RSU_u() ;
+    RampIneqRSU_RSDRamps.UseRSDforRamps();
+    RampIneqRSU_RSDRamps.UseRampConstraints();
+
+
+    Methode ModeleIntervalleWithRamp ;
+    ModeleIntervalleWithRamp.UseModeleInterval();
+    ModeleIntervalleWithRamp.UseRampConstraints();
+
+
+
+    Methode IneqVarYWithRamps;
+    IneqVarYWithRamps.UseIneqVarY();
+    IneqVarYWithRamps.UseRampConstraints();
+
+
 
 
     /////////////////////// SI ARGUMENTS //////////////////////
@@ -253,19 +253,71 @@ main(int argc,char**argv)
         double time = 0 ;
         IloEnv env ;
 
-        if (met==1) {
+        if (met==-1) {
             env=IloEnv() ;
-            process(Instance, fichier, time, RampModel , env) ;
+            process(Instance, fichier, time, DefaultCplex , env) ;
             env.end() ;
+        }
 
+
+        if (met==-4) {
+            env=IloEnv() ;
+            process(Instance, fichier, time, AggregModel , env) ;
+            env.end() ;
+        }
+
+        if (met==-7) {
+            env=IloEnv() ;
+            process(Instance, fichier, time, ModeleIntervalleNoRamp , env) ;
+            env.end() ;
+        }
+
+        if (met==-2) {
+            env=IloEnv() ;
+            process(Instance, fichier, time, IneqVarY , env) ;
+            env.end() ;
+        }
+
+
+        if (met==-3) {
+            env=IloEnv() ;
+            process(Instance, fichier, time, IneqPures, env) ;
+            env.end() ;
+        }
+
+
+        ///GRADIENTS
+
+        if (met==-10) {
+            env=IloEnv() ;
+            process(Instance, fichier, time, RampDefaultCplex , env) ;
+            env.end() ;
+        }
+
+
+        if (met==-70) {
+            env=IloEnv() ;
+            process(Instance, fichier, time, ModeleIntervalleWithRamp , env) ;
+            env.end() ;
+        }
+
+        if (met==-20) {
+            env=IloEnv() ;
+            process(Instance, fichier, time, IneqVarYWithRamps , env) ;
+            env.end() ;
+        }
+
+
+        if (met==-30) {
             env=IloEnv() ;
             process(Instance, fichier, time, RampIneqRSU, env) ;
             env.end() ;
+        }
 
+        if (met==-80) {
             env=IloEnv() ;
-            process(Instance, fichier, time, ModeleIntervalle, env) ;
+            process(Instance, fichier, time, RampIneqRSU_u, env) ;
             env.end() ;
-            fichier << endl ;
         }
     }
 
@@ -313,12 +365,6 @@ main(int argc,char**argv)
                 for (int id=16; id <=20; id++) {
                     Instance.id = id ;
 
-                    env=IloEnv() ;
-                    cout <<"start ramp model" << endl ;
-                    process(Instance, fichier, time, RampModel , env) ;
-                    cout <<"end ramp model" << endl ;
-                    env.end() ;
-
 //                    env=IloEnv() ;
 //                    process(Instance, fichier, time, RampIneqRSU, env) ;
 //                    env.end() ;
@@ -345,46 +391,7 @@ main(int argc,char**argv)
     }
 
 
-    //        int intra = 0 ;
-    //        string localisation = "data/Litt_Real/" ;
-    //        InstanceProcessed Instance = InstanceProcessed(n, T, bloc, demande, sym, cat01, intra, 0, localisation) ;
 
-    //        fichier << localisation << endl ;
-    //        Instance.localisation = localisation ;
-
-    //        n=30;
-    //        T=96;
-    //        Instance.n=n;
-    //        Instance.T=T ;
-    //        IloEnv env ;
-
-    //        for (sym= 3; sym >=3 ; sym--) {
-    //            Instance.symetrie = sym ;
-
-    //            for (int id=1; id <=10; id++) {
-    //                Instance.id = id ;
-
-    //                env=IloEnv() ;
-    //                cout <<"start ramp model" << endl ;
-    //                process(Instance, fichier, time, RampModel , env) ;
-    //                cout <<"end ramp model" << endl ;
-    //                env.end() ;
-
-    //                env=IloEnv() ;
-    //                process(Instance, fichier, time, RampIneqRSU, env) ;
-    //                env.end() ;
-
-    //                /*env=IloEnv() ;
-    //            process(Instance, fichier, time, ModeleIntervalle, env) ;
-    //            env.end() ;*/
-
-    //                fichier << endl ;
-    //            }
-
-    //            fichier << endl ;
-    //            fichier << endl ;
-    //        }
-    //    }
 
 
 

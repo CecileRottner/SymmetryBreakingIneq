@@ -4,16 +4,18 @@
 #include <ilcplex/ilocplex.h>
 
 #include "InstanceUCP.h"
+#include "Process.h"
 
 
 class ModeleFlot {
 public:
     IloEnv env ;
     InstanceUCP* pb ;
+    Methode met ;
     int T ;
     int n ;
 
-    ModeleFlot(IloEnv enviro, InstanceUCP* pb) ;
+    ModeleFlot(IloEnv enviro, InstanceUCP* pb, Methode & m) ;
 
     int Adj(int i, int t, int k) ;
     int AdjG(int g, int t, int k) ;
@@ -34,11 +36,12 @@ class IntervalModel {
 public:
     IloEnv env ;
     InstanceUCP* pb ;
+    Methode met ;
     int T ;
     int n ;
     int Lmin ;
 
-    IntervalModel(IloEnv enviro, InstanceUCP* pb) ;
+    IntervalModel(IloEnv enviro, InstanceUCP* pb, Methode & m) ;
 
     double FixedCost(int g, int a, int b) ;
     int Pindex(int g, int a, int b, int t) ;

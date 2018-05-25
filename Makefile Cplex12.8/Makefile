@@ -14,6 +14,8 @@ VPATH += src
 CPLEXDIR      = /home/rottner/Programmes/Cplex12.8/cplex
 CONCERTDIR    = /home/rottner/Programmes/Cplex12.8/concert
 
+include cplex_dir_128.mk
+
 # ---------------------------------------------------------------------
 # Compiler selection 
 # ---------------------------------------------------------------------

@@ -5,9 +5,10 @@
 
 using namespace std ;
 
-ModeleFlot::ModeleFlot(IloEnv enviro, InstanceUCP* pbm) {
+ModeleFlot::ModeleFlot(IloEnv enviro, InstanceUCP* pbm, Methode & m) {
     env=enviro ;
     pb=pbm ;
+    met=m ;
     n = pb->getn();
     T = pb->getT() ;
 }
@@ -366,9 +367,10 @@ IloModel ModeleFlot::AggregatedFlowModel() {
 
 }
 
-IntervalModel::IntervalModel(IloEnv enviro, InstanceUCP* pbm) {
+IntervalModel::IntervalModel(IloEnv enviro, InstanceUCP* pbm, Methode & m) {
     env=enviro ;
     pb=pbm ;
+    met=m ;
     n = pb->getn();
     T = pb->getT() ;
 
@@ -538,25 +540,27 @@ IloModel IntervalModel::defineIntervalModel(IloIntVarArray Y) {
 
     //Ramp constraints
 
-    for (int g=0; g<nbG; g++) {
-        int i = pb->getFirstG(g) ;
-        int SU = 0 ;
-        double RU = (pb->getPmax(i)-pb->getP(i))/3;
-        double RD = (pb->getPmax(i)-pb->getP(i))/2 ;
+    if (met.Ramping()) {
+        for (int g=0; g<nbG; g++) {
+            int i = pb->getFirstG(g) ;
+            int SU = 0 ;
+            double RU = (pb->getPmax(i)-pb->getP(i))/3;
+            double RD = (pb->getPmax(i)-pb->getP(i))/2 ;
 
-        for (int a = 0 ; a < T ; a++) {
-            for (int b = 0 ; b < T - Lmin + 1 ; b++) {
+            for (int a = 0 ; a < T ; a++) {
+                for (int b = 0 ; b < T - Lmin + 1 ; b++) {
 
-                if (a > 0) {
-                model.add(p[Pindex(g,a,b,a)] <= SU*Y[Yindex(g,a,b)] ) ;
-                }
-                if (b+Lmin-1 < T-1) {
-                    model.add(p[Pindex(g,a,b,b+Lmin-1)] <= SU*Y[Yindex(g,a,b)] ) ;
-                }
+                    if (a > 0) {
+                        model.add(p[Pindex(g,a,b,a)] <= SU*Y[Yindex(g,a,b)] ) ;
+                    }
+                    if (b+Lmin-1 < T-1) {
+                        model.add(p[Pindex(g,a,b,b+Lmin-1)] <= SU*Y[Yindex(g,a,b)] ) ;
+                    }
 
-                for (int t=a+1 ; t < b+Lmin ; t++) {
-                    model.add( p[Pindex(g,a,b,t)] - p[Pindex(g,a,b,t-1)] <= RU*Y[Yindex(g,a,b)] ) ;
-                    model.add( p[Pindex(g,a,b,t-1)] - p[Pindex(g,a,b,t)] <= RD*Y[Yindex(g,a,b)] ) ;
+                    for (int t=a+1 ; t < b+Lmin ; t++) {
+                        model.add( p[Pindex(g,a,b,t)] - p[Pindex(g,a,b,t-1)] <= RU*Y[Yindex(g,a,b)] ) ;
+                        model.add( p[Pindex(g,a,b,t-1)] - p[Pindex(g,a,b,t)] <= RD*Y[Yindex(g,a,b)] ) ;
+                    }
                 }
             }
         }

@@ -64,7 +64,7 @@ public:
 
 
     void UseIneqSum() { // on peut choisir ou non d'utiliser un lazy callback dans ce cas (même si fixing static en plus)
-        num=-3 ;
+        num=-3;
         doCplex=0 ;
         doIneqSum=1 ;
     }
@@ -108,6 +108,7 @@ public:
         //num=-3 ;
         doCplex=0 ;
         CteRamping=1 ;
+        num*=10 ;
     }
 
     void Use_RHS_RSU_u()  {
@@ -172,10 +173,7 @@ public :
         intra = intra_ ;
         id = id_ ;
         localisation = loc_ ;
-
-
     }
-
 
     string createName() const ;
 
@@ -187,8 +185,6 @@ public :
         cout << fileS << endl ;
         return fileS ;
     }
-
-
 
 };
 

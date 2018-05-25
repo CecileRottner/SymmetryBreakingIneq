@@ -4,19 +4,41 @@
 #include <ilcplex/ilocplex.h>
 
 #include "InstanceUCP.h"
+#include "Process.h"
 
 
-IloModel defineModel(IloEnv env, InstanceUCP* pb, const IloBoolVarArray & x, const IloBoolVarArray & u, int uNum, int ramp) ;
+class ModeleUCP {
+public:
+    IloEnv env;
+    Methode met ;
+    InstanceUCP* pb ;
+    IloBoolVarArray x ;
+    IloBoolVarArray u ;
 
-void AddRSUIneq(IloModel & model, IloEnv env, InstanceUCP* pb, const IloBoolVarArray & x, const IloBoolVarArray & u, int methode) ;
 
-void AddRSDIneqForRamps(IloModel & model, IloEnv env, InstanceUCP* pb, const IloBoolVarArray & x, const IloBoolVarArray & u, int methode);
+    ModeleUCP(IloEnv env, InstanceUCP* pb, Methode & m, IloBoolVarArray x, IloBoolVarArray u);
+    IloModel defineModel(int uNum) ;
+    IloModel defineModel_y() ;
+    IloModel defineModel_numberOfOnes() ;
+    IloModel defineModel_sum() ;
+    IloModel AggregatedModel() ;
 
-IloModel defineModel_y(IloEnv env, InstanceUCP* pb, const IloBoolVarArray & x, const IloBoolVarArray & u) ;
-IloModel defineModel_numberOfOnes(IloEnv env, InstanceUCP* pb, const IloBoolVarArray & x, const IloBoolVarArray & u) ;
+    void AddRSUIneq(IloModel & model) ;
+    void AddRSDIneqForRamps(IloModel & model);
 
-IloModel defineModel_sum(IloEnv env, InstanceUCP* pb, const IloBoolVarArray & x, const IloBoolVarArray & u, int methode) ;
-IloModel AggregatedModel(IloEnv env, InstanceUCP* pb) ;
+};
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #endif /* MODELEUCP_INCLUDED */

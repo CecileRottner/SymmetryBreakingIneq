@@ -8,7 +8,9 @@ VPATH += src
 # When you adapt this makefile to compile your CPLEX programs
 # please copy this makefile and set CPLEXDIR and CONCERTDIR to
 # the directories where CPLEX and CONCERT are installed.
-#
+# CPLEXDIR      = /home/rottner/Programmes/Cplex12.8/cplex
+# CONCERTDIR    = /home/rottner/Programmes/Cplex12.8/concert
+
 #------------------------------------------------------------
 
 include cplex_dir_128.mk
