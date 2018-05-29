@@ -50,6 +50,10 @@ int process(InstanceProcessed I, ofstream & fichier, double & time, Methode met,
         model = TakritiModel.defineModel_sum() ;
     }
 
+    else if (!met.IneqSum() && met.IneqVarY()) {
+        model = TakritiModel.defineModel_y() ;
+    }
+
     else if (met.NumberOfOnes()) {
         model = TakritiModel.defineModel_numberOfOnes() ;
     }
