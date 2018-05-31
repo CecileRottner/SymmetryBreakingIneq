@@ -339,34 +339,34 @@ main(int argc,char**argv)
 
         int T = 24;
         int n = 20 ;
-        int sym = 2 ;
+        int sym = 3 ;
         int demande = 3;
-        int cat01 = 0;
+        int cat01 = 1;
         int bloc = 1;
 
         int intra =0 ;
 
-        string localisation = "data/smaller/" ;
+        string localisation = "data/01/" ;
         InstanceProcessed Instance = InstanceProcessed(n, T, bloc, demande, sym, cat01, intra, 0, localisation) ;
 
         fichier << localisation << endl ;
         Instance.localisation = localisation ;
 
         n=20;
-        T=96;
+        T=48;
         Instance.n=n;
         Instance.T=T ;
         IloEnv env ;
 
-        for (sym= 3; sym >=3 ; sym--) {
+        for (sym= 4; sym >=4 ; sym--) {
             Instance.symetrie = sym ;
 
-            for (T=24 ; T <=96; T*=2) {
+            for (T=48 ; T <=48; T*=2) {
 
                 Instance.T=T ;
 
 
-                for (int id=16; id <=20; id++) {
+                for (int id=1; id <=20; id++) {
                     Instance.id = id ;
 
 //                    env=IloEnv() ;
@@ -374,12 +374,16 @@ main(int argc,char**argv)
 //                    env.end() ;
 
                     env=IloEnv() ;
-                    process(Instance, fichier, time, RampIneqRSU_u, env) ;
+                    process(Instance, fichier, time, DefaultCplex, env) ;
                     env.end() ;
 
                     env=IloEnv() ;
-                    process(Instance, fichier, time, RampIneqRSU_RSDRamps, env) ;
+                    process(Instance, fichier, time, AggregModel, env) ;
                     env.end() ;
+
+//                    env=IloEnv() ;
+//                    process(Instance, fichier, time, RampIneqRSU_RSDRamps, env) ;
+//                    env.end() ;
 
 //                    env=IloEnv() ;
 //                    process(Instance, fichier, time, ModeleIntervalle, env) ;
