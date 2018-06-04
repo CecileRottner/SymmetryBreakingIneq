@@ -45,6 +45,7 @@ string to_string2(int number){
 
 
 string InstanceProcessed::createName() const {
+    int instance_joco=0 ;
     string s_n = to_string2(n) + "_" ;
 
     string s_T = s_n + to_string2(T) ;
@@ -63,7 +64,12 @@ string InstanceProcessed::createName() const {
     s_cat = s_cat + "_" ;
 
     string s_intra = s_cat + to_string2(intra) ;
-    s_intra = s_intra + "_" ;
+    if (instance_joco) {
+        s_intra=s_cat;
+    }
+    else {
+        s_intra = s_intra + "_" ;
+    }
 
     string s_id = s_intra + to_string2(id) ;
     string file = s_id + ".txt" ;

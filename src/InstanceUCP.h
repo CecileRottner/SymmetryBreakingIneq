@@ -14,6 +14,7 @@ public:
     IloBoolArray Init ;
     IloIntArray L, l, nk, nS ;
     IloNumArray D, P, Pmax, cf, c0, cp ;
+    int instance_joco;
 
     IloIntArray First ; // i est le premier element de son groupe, First[i]=1
     IloIntArray Last ;

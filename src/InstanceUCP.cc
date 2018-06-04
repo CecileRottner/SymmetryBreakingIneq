@@ -10,6 +10,7 @@ using namespace std ;
 InstanceUCP::InstanceUCP(IloEnv envir, const char* file) {
 
     env = envir ;
+    instance_joco=0;
     Lecture(file) ;
     Initialise() ;
 }
@@ -20,6 +21,7 @@ InstanceUCP::InstanceUCP(IloEnv envir, const char* file) {
 void InstanceUCP::Initialise() {
 
     //calculs symétries
+
     nbG=0 ;
 
     for (int i = 0 ; i <n ; i++) {
@@ -411,6 +413,8 @@ void InstanceUCP::Lecture(const char* file) {
 
 
 
+
+    if (!instance_joco)  {
     //Symétries
     while(nom!="="){
         fichier >> nom;
@@ -459,6 +463,18 @@ void InstanceUCP::Lecture(const char* file) {
         fichier >> nom;
     }
     nom = "";
+    }
+
+    else {
+        K=n;
+        for (int i=0 ; i <n ; i++) {
+            nk_[i] = i ;
+            First_[i] = 1 ;
+            Last_[i] = 1;
+            S=n ;
+
+        }
+    }
 
 
     //fin lecture de fichier
