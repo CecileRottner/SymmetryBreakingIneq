@@ -6,7 +6,7 @@ intra=0
 
 dossier=data/smaller/
 
-for y in 10 ; do
+for y in 1 10 ; do
 
 T=48
 for n in 20 30 ; do
