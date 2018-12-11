@@ -86,8 +86,10 @@ int process(InstanceProcessed I, ofstream & fichier, double & time, Methode met,
 
     //Paramètres
     cplex.setParam(IloCplex::Param::ClockType, 1); //1 : CPU TIME
+    cplex.setParam(IloCplex::Param::Threads, 1);
     cplex.setParam(IloCplex::EpGap, 0.0000001) ;
     cplex.setParam(IloCplex::Param::TimeLimit, 3600) ;
+    //cplex.setParam(IloCplex::LongParam::NodeLim, 1) ;
 
 
     //Résolution et affichage de la solution
@@ -145,6 +147,7 @@ int process(InstanceProcessed I, ofstream & fichier, double & time, Methode met,
 
         fichier << met.getNum() <<  " & " << n << " & " << T  << " & " << I.symetrie << " & " << inst->nbG  << " & " << inst->MaxSize << " & " << inst->MeanSize  << " & " << id ;
         fichier << " & " << cplex.getObjValue()  ; //Optimal value
+        fichier << " & " << cplex.getBestObjValue()  ; //Optimal value
         fichier << " & " << cplex.getMIPRelativeGap() << " \\% " ; //approx gap
         fichier << " & " << cplex.getNnodes() ;
         fichier << " & " << t - time ;
@@ -341,24 +344,24 @@ main(int argc,char**argv)
         int n = 20 ;
         int sym = 3 ;
         int demande = 3;
-        int cat01 = 1;
+        int cat01 = 0;
         int bloc = 1;
 
         int intra =0 ;
 
-        string localisation = "data/01/" ;
+        string localisation = "data/smaller/" ;
         InstanceProcessed Instance = InstanceProcessed(n, T, bloc, demande, sym, cat01, intra, 0, localisation) ;
 
         fichier << localisation << endl ;
         Instance.localisation = localisation ;
 
-        n=20;
+        n=30;
         T=48;
         Instance.n=n;
         Instance.T=T ;
         IloEnv env ;
 
-        for (sym= 4; sym >=4 ; sym--) {
+        for (sym= 3; sym >=3 ; sym--) {
             Instance.symetrie = sym ;
 
             for (T=48 ; T <=48; T*=2) {
@@ -369,17 +372,13 @@ main(int argc,char**argv)
                 for (int id=1; id <=20; id++) {
                     Instance.id = id ;
 
+
+                    env=IloEnv() ;
+                    process(Instance, fichier, time, RampIneqRSU, env) ;
+                    env.end() ;
 //                    env=IloEnv() ;
-//                    process(Instance, fichier, time, RampIneqRSU, env) ;
+//                    process(Instance, fichier, time, AggregModel, env) ;
 //                    env.end() ;
-
-                    env=IloEnv() ;
-                    process(Instance, fichier, time, DefaultCplex, env) ;
-                    env.end() ;
-
-                    env=IloEnv() ;
-                    process(Instance, fichier, time, AggregModel, env) ;
-                    env.end() ;
 
 //                    env=IloEnv() ;
 //                    process(Instance, fichier, time, RampIneqRSU_RSDRamps, env) ;

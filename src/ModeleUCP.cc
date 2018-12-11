@@ -111,6 +111,7 @@ IloModel ModeleUCP::defineModel(int uNum) {
     if (uNum) {
         cout << "conversion de u" << endl ;
         model.add(IloConversion(env, u, IloNumVar::Float) ) ;
+        model.add(IloConversion(env, x, IloNumVar::Float) ) ;
     }
 
     /* model.add(IloConversion(env, x, IloNumVar::Float) ) ;
@@ -152,6 +153,7 @@ void ModeleUCP::AddRSUIneq(IloModel & model) {
         for (int i=first ; i < last ; i++) {
 
             int l = pb->getl(i) ;
+            int L = pb->getL(i) ;
 
             int ub_j = i+1 ;
             if (methode == -4) {
@@ -178,13 +180,13 @@ void ModeleUCP::AddRSUIneq(IloModel & model) {
                 }
             }
 
-            if (pb->getInit(i)==0) {
+            //if (pb->getInit(i)==0) {
                 for (int j=i+1 ; j <= ub_j ; j++) {
-                    for (int t = 0 ; t < l ; t++) {
+                    for (int t = 0 ; t < L ; t++) {
                         model.add(x[j*T+t] <= x[i*T+t]) ;
                     }
                 }
-            }
+            //}
         }
     }
 }
