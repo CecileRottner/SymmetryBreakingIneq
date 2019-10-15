@@ -31,6 +31,7 @@ private:
 
     //contraintes
     int CteRamping ;
+    int emptyCB;
 
 
 public:
@@ -50,6 +51,7 @@ public:
         doIntervalModel = 0 ;
         CteRamping = 0 ;
         doRHS_RSU_u = 0 ;
+        emptyCB=0;
 
     }
 
@@ -130,6 +132,10 @@ public:
         cout << "Ramping constraints: " << CteRamping << endl ;
     }
 
+    void EmptyCallback() {
+        emptyCB=1;
+    }
+
     //accès aux paramètres
     int getNum() {return num ;}
     int CplexOnly() {return doCplex;}
@@ -143,6 +149,7 @@ public:
     int RSUonly() {return doRSUOnly;}
     int RHS_RSU_u()  {return doRHS_RSU_u;}
     int RSDforRamps() {return doRSDforRamps;}
+    int useCB() {return emptyCB;}
 
 };
 

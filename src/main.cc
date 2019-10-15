@@ -17,6 +17,16 @@ using namespace std ;
 
 ILOSTLBEGIN
 
+ILOBRANCHCALLBACK1(BCallBack, IloInt, fake) {
+    cout << "branch callback" << endl;
+}
+
+
+ILOLAZYCONSTRAINTCALLBACK1(LazyCB, IloInt, fake) {
+    cout << "lazy callback" << endl;
+}
+
+
 int process(InstanceProcessed I, ofstream & fichier, double & time, Methode met, IloEnv env) {
 
     // cout << "ici : " << met.getNum() << endl ;
@@ -81,8 +91,14 @@ int process(InstanceProcessed I, ofstream & fichier, double & time, Methode met,
         }
     }
 
+
     IloCplex cplex(model) ;
 
+
+    if (met.useCB()) {
+        cplex.use(BCallBack(env, 0)) ;
+        cplex.use(LazyCB(env, 0)) ;
+    }
 
     //Paramètres
     cplex.setParam(IloCplex::Param::ClockType, 1); //1 : CPU TIME
@@ -202,6 +218,10 @@ main(int argc,char**argv)
     Methode AggregModel;
     AggregModel.UseAggregatedModel();
 
+    Methode AggregModelCB;
+    AggregModelCB.UseAggregatedModel();
+    AggregModelCB.EmptyCallback();
+
     //////// AVEC GRADIENTS
 
     Methode RampDefaultCplex;
@@ -270,6 +290,11 @@ main(int argc,char**argv)
         if (met==-4) {
             env=IloEnv() ;
             process(Instance, fichier, time, AggregModel , env) ;
+            env.end() ;
+        }
+        if (met==-5) {
+            env=IloEnv() ;
+            process(Instance, fichier, time, AggregModelCB , env) ;
             env.end() ;
         }
 
