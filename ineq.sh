@@ -12,7 +12,7 @@ T=48
 for n in 20 30 ; do
 for sym in 2 3 ; do
   for id in {1..20}; do
-    for met in $(( -1 * $y )) $(( -4 * $y )) $(( -7 * $y )) $(( -2 * $y )) $(( -3 * $y )) ; do	
+    for met in $(( 1 * $y )) $(( 4 * $y )) $(( -7 * $y )) $(( -2 * $y )) $(( -3 * $y )) ; do	
       ./mf $met $dossier $n $T 1 3 $sym 0 $intra $id
     done
     printf "\n" >> result.txt
