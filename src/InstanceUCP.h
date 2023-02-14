@@ -124,6 +124,8 @@ public:
     IloNum getD(IloInt i) ;
     IloNum getP(IloInt i) ;
     IloNum getPmax(IloInt i) ;
+    IloNum getGradUp(IloInt i) ;
+    IloNum getGradDown(IloInt i) ;
     IloNum getcf(IloInt i) ;
     IloNum getc0(IloInt i) ;
     IloNum getcp(IloInt i) ;

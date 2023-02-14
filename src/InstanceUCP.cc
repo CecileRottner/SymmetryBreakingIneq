@@ -8,7 +8,6 @@ using namespace std ;
 
 
 InstanceUCP::InstanceUCP(IloEnv envir, const char* file) {
-
     env = envir ;
     instance_joco=0;
     Lecture(file) ;
@@ -580,6 +579,15 @@ IloNum InstanceUCP::getPmax(IloInt i) {
         cout << "Attention, Pmax[" << i << "] n'existe pas." << endl ;
     }
     return Pmax[i] ;
+}
+
+
+IloNum InstanceUCP::getGradUp(IloInt i) {
+    return ((getPmax(i)-getP(i))/3) ;
+}
+
+IloNum InstanceUCP::getGradDown(IloInt i) {
+    return ((getPmax(i)-getP(i))/2) ;
 }
 
 IloNum InstanceUCP::getcf(IloInt i) {
