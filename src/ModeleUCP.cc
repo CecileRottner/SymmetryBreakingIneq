@@ -522,6 +522,17 @@ IloModel ModeleUCP::AggregatedModel() {
         Prod.end() ;
     }
 
+    if (met.Ramping()) {
+        cout << "gradients"<< endl;
+        for (int g=0; g<nbG; g++) {
+            int i = pb->getFirstG(g) ;
+            for (t = 1 ; t < T ; t++) {
+                model.add(pp[g*T + t] - pp[g*T + t-1] <= (pb->getGradUp(i))*xx[g*T + t-1] );
+                model.add(pp[g*T + t-1] - pp[g*T + t] <= (pb->getGradDown(i))*xx[g*T + t] );
+            }
+        }
+    }
+
 
     return model ;
 

@@ -227,6 +227,10 @@ main(int argc,char**argv)
     Methode RampDefaultCplex;
     RampDefaultCplex.UseRampConstraints();
 
+    Methode RampAggregatedModel;
+    RampAggregatedModel.UseAggregatedModel();
+    RampAggregatedModel.UseRampConstraints();
+
     Methode RampIneqRSU;
     RampIneqRSU.AddIneqRSU() ;
     RampIneqRSU.UseRampConstraints();
@@ -326,6 +330,13 @@ main(int argc,char**argv)
             env.end() ;
         }
 
+        
+        if (met==-40) {
+            cout << "met 40" << endl;
+            env=IloEnv() ;
+            process(Instance, fichier, time, RampAggregatedModel , env) ;
+            env.end() ;
+        }
 
         if (met==-70) {
             env=IloEnv() ;
