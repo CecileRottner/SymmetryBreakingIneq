@@ -122,8 +122,9 @@ public:
     IloInt getL(IloInt i) ;
     IloInt getl(IloInt i) ;
     IloNum getD(IloInt i) ;
-    IloNum getP(IloInt i) ;
+    IloNum getP(IloInt i) ;//deprecated (use getPmin instead)
     IloNum getPmax(IloInt i) ;
+    IloNum getPmin(IloInt i) ;
     IloNum getGradUp(IloInt i) ;
     IloNum getGradDown(IloInt i) ;
     IloNum getcf(IloInt i) ;

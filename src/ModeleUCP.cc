@@ -33,7 +33,7 @@ IloModel ModeleUCP::defineModel(int uNum) {
     IloExpr cost(env) ;
     for (t=0 ; t < T ; t++) {
         for (i=0; i<n; i++) {
-            cost += x[i*T + t]*pb->getcf(i) + pb->getc0(i)*u[i*T + t] + (pp[i*T + t]+pb->getP(i)*x[i*T + t])*(pb->getcp(i)) ;
+            cost += x[i*T + t]*pb->getcf(i) + pb->getc0(i)*u[i*T + t] + (pp[i*T + t]+pb->getPmin(i)*x[i*T + t])*(pb->getcp(i)) ;
         }
     }
 
@@ -92,7 +92,7 @@ IloModel ModeleUCP::defineModel(int uNum) {
     //Limite de production
     for (i=0; i<n; i++) {
         for (t=0 ; t < T ; t++) {
-            model.add(pp[i*T + t] <= (pb->getPmax(i)-pb->getP(i))*x[i*T + t]);
+            model.add(pp[i*T + t] <= (pb->getPmax(i)-pb->getPmin(i))*x[i*T + t]);
             model.add(pp[i*T + t] >= 0);
         }
     }
@@ -102,7 +102,7 @@ IloModel ModeleUCP::defineModel(int uNum) {
     for (t=0; t < T ; t++) {
         IloExpr Prod(env) ;
         for (i=0; i<n; i++) {
-            Prod += pp[i*T + t] + pb->getP(i)*x[i*T + t];
+            Prod += pp[i*T + t] + pb->getPmin(i)*x[i*T + t];
         }
         model.add(pb->getD(t) <= Prod);
         Prod.end() ;
@@ -124,8 +124,8 @@ IloModel ModeleUCP::defineModel(int uNum) {
         for (i = 0 ; i <n ; i++) {
             // model.add(pp[i*T] <= 0 ) ;
             for (t = 1 ; t < T ; t++) {
-                model.add(pp[i*T + t] - pp[i*T + t-1] <= (pb->getPmax(i)-pb->getP(i))*x[i*T + t-1]/3 );
-                model.add(pp[i*T + t-1] - pp[i*T + t] <= (pb->getPmax(i)-pb->getP(i))*x[i*T + t]/2 );
+                model.add(pp[i*T + t] - pp[i*T + t-1] <= (pb->getGradUp(i))*x[i*T + t-1] );
+                model.add(pp[i*T + t-1] - pp[i*T + t] <= (pb->getGradDown(i))*x[i*T + t] );
             }
         }
     }
@@ -440,7 +440,7 @@ IloModel ModeleUCP::AggregatedModel() {
     for (t=0 ; t < T ; t++) {
         for (int g=0; g<nbG; g++) {
             int i = pb->getFirstG(g) ;
-            cost += xx[g*T + t]*pb->getcf(i) + pb->getc0(i)*uu[g*T + t] + (pp[g*T + t]+pb->getP(i)*xx[g*T + t])*(pb->getcp(i)) ;
+            cost += xx[g*T + t]*pb->getcf(i) + pb->getc0(i)*uu[g*T + t] + (pp[g*T + t]+pb->getPmin(i)*xx[g*T + t])*(pb->getcp(i)) ;
 
         }
     }
@@ -505,7 +505,7 @@ IloModel ModeleUCP::AggregatedModel() {
     for (int g=0; g<nbG; g++) {
         int i = pb->getFirstG(g) ;
         for (t=0 ; t < T ; t++) {
-            model.add(pp[g*T + t] <= (pb->getPmax(i)-pb->getP(i))*xx[g*T + t]);
+            model.add(pp[g*T + t] <= (pb->getPmax(i)-pb->getPmin(i))*xx[g*T + t]);
             model.add(pp[g*T + t] >= 0);
         }
     }
@@ -516,7 +516,7 @@ IloModel ModeleUCP::AggregatedModel() {
         IloExpr Prod(env) ;
         for (int g=0; g<nbG; g++) {
             int i = pb->getFirstG(g) ;
-            Prod += pp[g*T + t] + pb->getP(i)*xx[g*T + t];
+            Prod += pp[g*T + t] + pb->getPmin(i)*xx[g*T + t];
         }
         model.add(pb->getD(t) <= Prod);
         Prod.end() ;

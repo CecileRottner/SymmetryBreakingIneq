@@ -567,7 +567,14 @@ IloNum InstanceUCP::getD(IloInt i) {
     return D[i] ;
 }
 
+//deprecated: use getPmin instead
 IloNum InstanceUCP::getP(IloInt i) {
+    if ((i >= n)||(i < 0)) {
+        cout << "Attention, P[" << i << "] n'existe pas." << endl ;
+    }
+    return P[i] ;
+}
+IloNum InstanceUCP::getPmin(IloInt i) {
     if ((i >= n)||(i < 0)) {
         cout << "Attention, P[" << i << "] n'existe pas." << endl ;
     }
